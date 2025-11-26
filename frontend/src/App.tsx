@@ -64,7 +64,7 @@ function App() {
         });
         setLoading(false);
       },
-      (error) => {
+      () => {
         setError('Failed to get your location. Please enable location services.');
         setLoading(false);
       }
