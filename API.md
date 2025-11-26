@@ -301,6 +301,147 @@ Generate personalized food recommendations.
 - `400` - Missing or invalid location/order history
 - `500` - Server error generating recommendations
 
+---
+
+### 🍕 Scrape Foodpanda Orders
+
+Automatically scrape order history from Foodpanda Pakistan.
+
+**Endpoint:** `POST /scrape/foodpanda/orders`
+
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "cookies": "session_id=abc123; auth_token=xyz789"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "orderHistory": [
+    {
+      "restaurantName": "Pizza Paradise",
+      "cuisine": "Italian",
+      "items": [
+        { "name": "Margherita Pizza", "price": 0 }
+      ],
+      "total": 25.50,
+      "date": "2024-01-20T19:30:00.000Z",
+      "timeOfDay": "evening",
+      "dayOfWeek": "Saturday"
+    }
+  ],
+  "preferences": {
+    "topCuisines": ["Italian", "Pakistani"],
+    "topRestaurants": ["Pizza Paradise"],
+    "averageOrderValue": 25.50,
+    "totalOrders": 10
+  },
+  "totalOrders": 10,
+  "message": "Successfully scraped order history from Foodpanda"
+}
+```
+
+**How to get cookies:**
+1. Go to [Foodpanda Orders](https://www.foodpanda.pk/new/orders) and log in
+2. Press F12 to open Developer Tools
+3. Go to "Application" tab → "Cookies" → "https://www.foodpanda.pk"
+4. Copy cookies in format: `name=value; name2=value2`
+
+**Error Responses:**
+- `400` - Missing cookies
+- `500` - Failed to scrape (invalid cookies or page structure changed)
+
+---
+
+### 🍕 Scrape Foodpanda Restaurants
+
+Get restaurants near a location from Foodpanda.
+
+**Endpoint:** `POST /scrape/foodpanda/restaurants`
+
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "latitude": 33.700414159709915,
+  "longitude": 73.03673451876075
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "restaurants": [
+    {
+      "name": "Pizza Paradise",
+      "url": "https://www.foodpanda.pk/restaurant/...",
+      "cuisine": ["Italian", "Pizza"],
+      "rating": 4.5,
+      "deliveryTime": "30-40 min",
+      "minimumOrder": "Rs. 249",
+      "deliveryFee": "Rs. 49",
+      "image": "https://..."
+    }
+  ],
+  "count": 50,
+  "message": "Successfully scraped restaurants from Foodpanda"
+}
+```
+
+**Error Responses:**
+- `400` - Missing latitude/longitude
+- `500` - Failed to scrape restaurants
+
+---
+
+### 🍕 Scrape Foodpanda Restaurant Menu
+
+Get menu items from a specific Foodpanda restaurant.
+
+**Endpoint:** `POST /scrape/foodpanda/menu`
+
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "restaurantUrl": "https://www.foodpanda.pk/restaurant/..."
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "menu": [
+    {
+      "name": "Chicken Biryani",
+      "description": "Aromatic rice with tender chicken",
+      "price": 450,
+      "category": "Main Course",
+      "image": "https://..."
+    }
+  ],
+  "count": 25,
+  "message": "Successfully scraped menu from Foodpanda restaurant"
+}
+```
+
+**Error Responses:**
+- `400` - Missing restaurant URL
+- `500` - Failed to scrape menu
+
+**Note:** For detailed scraper documentation, see [FOODPANDA_SCRAPER.md](./FOODPANDA_SCRAPER.md)
+
+---
+
 ## Data Models
 
 ### OrderHistoryItem

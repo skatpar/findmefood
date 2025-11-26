@@ -4,6 +4,8 @@ import {
   uploadOrderHistory,
   getRecommendations,
   parseOrderHistory,
+  scrapeFoodpandaOrders,
+  scrapeFoodpandaRestaurants,
 } from './api';
 import {
   OrderHistoryItem,
@@ -26,6 +28,8 @@ function App() {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [foodpandaCookies, setFoodpandaCookies] = useState<string>('');
+  const [showCookieInput, setShowCookieInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,6 +148,28 @@ function App() {
     }
   };
 
+  const handleScrapeFoodpanda = async () => {
+    if (!foodpandaCookies.trim()) {
+      setError('Please enter your Foodpanda cookies');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await scrapeFoodpandaOrders(foodpandaCookies);
+      setOrderHistory(result.orderHistory);
+      setPreferences(result.preferences);
+      setShowCookieInput(false);
+      setError(null);
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to scrape Foodpanda orders. Make sure your cookies are valid.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="app">
       <div className="container">
@@ -180,6 +206,58 @@ function App() {
           >
             Or Use Sample Data
           </button>
+          <button
+            className="sample-data-button"
+            onClick={() => setShowCookieInput(!showCookieInput)}
+            disabled={loading}
+            style={{ marginLeft: '10px', backgroundColor: '#ff2b85' }}
+          >
+            🍕 Scrape from Foodpanda
+          </button>
+
+          {showCookieInput && (
+            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+              <h3 style={{ marginTop: 0, fontSize: '16px' }}>How to get Foodpanda cookies:</h3>
+              <ol style={{ fontSize: '14px', lineHeight: '1.6', color: '#666' }}>
+                <li>Go to <a href="https://www.foodpanda.pk/new/orders" target="_blank" rel="noopener noreferrer">Foodpanda Orders</a> and log in</li>
+                <li>Press F12 to open Developer Tools</li>
+                <li>Go to "Application" tab → "Cookies" → "https://www.foodpanda.pk"</li>
+                <li>Copy all cookies (or just copy the session cookie)</li>
+                <li>Paste them below in format: <code>name=value; name2=value2</code></li>
+              </ol>
+              <textarea
+                value={foodpandaCookies}
+                onChange={(e) => setFoodpandaCookies(e.target.value)}
+                placeholder="Paste your Foodpanda cookies here..."
+                style={{
+                  width: '100%',
+                  minHeight: '80px',
+                  padding: '10px',
+                  borderRadius: '4px',
+                  border: '1px solid #ddd',
+                  fontFamily: 'monospace',
+                  fontSize: '12px',
+                  marginBottom: '10px'
+                }}
+              />
+              <button
+                onClick={handleScrapeFoodpanda}
+                disabled={loading || !foodpandaCookies.trim()}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#ff2b85',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loading ? 'Scraping...' : 'Import Orders from Foodpanda'}
+              </button>
+            </div>
+          )}
+
           {orderHistory.length > 0 && (
             <div className="file-info">
               ✅ {orderHistory.length} orders loaded successfully

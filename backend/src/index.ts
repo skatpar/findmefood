@@ -10,6 +10,7 @@ import { WeatherService } from './services/weatherService';
 import { RestaurantService } from './services/restaurantService';
 import { OrderHistoryParser } from './services/orderHistoryParser';
 import { RecommendationEngine } from './services/recommendationEngine';
+import { FoodpandaScraper } from './services/foodpandaScraper';
 import { RecommendationRequest, RecommendationContext } from './types';
 
 // Load environment variables
@@ -62,6 +63,7 @@ const weatherService = new WeatherService(process.env.OPENWEATHER_API_KEY || '')
 const restaurantService = new RestaurantService();
 const orderParser = new OrderHistoryParser();
 const recommendationEngine = new RecommendationEngine(weatherService);
+const foodpandaScraper = new FoodpandaScraper();
 
 // Routes
 
@@ -223,6 +225,103 @@ app.post('/api/parse-history', async (req: Request, res: Response) => {
     console.error('Error parsing history:', error);
     res.status(500).json({ error: error.message || 'Failed to parse order history' });
   }
+});
+
+// Scrape order history from Foodpanda
+app.post('/api/scrape/foodpanda/orders', async (req: Request, res: Response) => {
+  try {
+    const { cookies } = req.body;
+
+    if (!cookies) {
+      return res.status(400).json({
+        error: 'Cookies are required. Please provide your Foodpanda session cookies.'
+      });
+    }
+
+    const orderHistory = await foodpandaScraper.scrapeOrderHistory(cookies);
+    const preferences = orderParser.analyzePreferences(orderHistory);
+
+    res.json({
+      success: true,
+      orderHistory,
+      preferences,
+      totalOrders: orderHistory.length,
+      message: 'Successfully scraped order history from Foodpanda'
+    });
+  } catch (error: any) {
+    console.error('Error scraping Foodpanda orders:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to scrape order history from Foodpanda',
+      details: 'Make sure you are logged into Foodpanda and provide valid session cookies.'
+    });
+  }
+});
+
+// Scrape restaurants from Foodpanda
+app.post('/api/scrape/foodpanda/restaurants', async (req: Request, res: Response) => {
+  try {
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        error: 'Latitude and longitude are required'
+      });
+    }
+
+    const restaurants = await foodpandaScraper.scrapeRestaurants(latitude, longitude);
+
+    res.json({
+      success: true,
+      restaurants,
+      count: restaurants.length,
+      message: 'Successfully scraped restaurants from Foodpanda'
+    });
+  } catch (error: any) {
+    console.error('Error scraping Foodpanda restaurants:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to scrape restaurants from Foodpanda'
+    });
+  }
+});
+
+// Scrape menu from a Foodpanda restaurant
+app.post('/api/scrape/foodpanda/menu', async (req: Request, res: Response) => {
+  try {
+    const { restaurantUrl } = req.body;
+
+    if (!restaurantUrl) {
+      return res.status(400).json({
+        error: 'Restaurant URL is required'
+      });
+    }
+
+    const menu = await foodpandaScraper.scrapeRestaurantMenu(restaurantUrl);
+
+    res.json({
+      success: true,
+      menu,
+      count: menu.length,
+      message: 'Successfully scraped menu from Foodpanda restaurant'
+    });
+  } catch (error: any) {
+    console.error('Error scraping Foodpanda menu:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to scrape menu from Foodpanda'
+    });
+  }
+});
+
+// Cleanup browser on shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, closing browser...');
+  await foodpandaScraper.closeBrowser();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT received, closing browser...');
+  await foodpandaScraper.closeBrowser();
+  process.exit(0);
 });
 
 // Serve static frontend files in production

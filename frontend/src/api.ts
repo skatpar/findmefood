@@ -66,4 +66,43 @@ export const getRecommendations = async (
   return response.data;
 };
 
+// Foodpanda scraper APIs
+
+export const scrapeFoodpandaOrders = async (
+  cookies: string
+): Promise<{
+  orderHistory: OrderHistoryItem[];
+  preferences: Preferences;
+  totalOrders: number;
+  message: string;
+}> => {
+  const response = await api.post('/scrape/foodpanda/orders', { cookies });
+  return response.data;
+};
+
+export const scrapeFoodpandaRestaurants = async (
+  location: Location
+): Promise<{
+  restaurants: any[];
+  count: number;
+  message: string;
+}> => {
+  const response = await api.post('/scrape/foodpanda/restaurants', {
+    latitude: location.latitude,
+    longitude: location.longitude,
+  });
+  return response.data;
+};
+
+export const scrapeFoodpandaMenu = async (
+  restaurantUrl: string
+): Promise<{
+  menu: any[];
+  count: number;
+  message: string;
+}> => {
+  const response = await api.post('/scrape/foodpanda/menu', { restaurantUrl });
+  return response.data;
+};
+
 export default api;
