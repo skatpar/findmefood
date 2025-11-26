@@ -1,0 +1,82 @@
+[
+  {
+    "restaurant": "Pizza Paradise",
+    "items": ["Margherita Pizza", "Garlic Bread"],
+    "date": "2024-01-20",
+    "time": "19:30",
+    "totalAmount": 25.50,
+    "cuisine": "Italian"
+  },
+  {
+    "restaurant": "Curry House",
+    "items": ["Chicken Tikka Masala", "Naan", "Rice"],
+    "date": "2024-01-18",
+    "time": "20:15",
+    "totalAmount": 18.99,
+    "cuisine": "Indian"
+  },
+  {
+    "restaurant": "Sushi Master",
+    "items": ["California Roll", "Salmon Sashimi", "Miso Soup"],
+    "date": "2024-01-15",
+    "time": "13:00",
+    "totalAmount": 32.50,
+    "cuisine": "Japanese"
+  },
+  {
+    "restaurant": "Burger Joint",
+    "items": ["Cheeseburger", "Fries", "Cola"],
+    "date": "2024-01-12",
+    "time": "21:00",
+    "totalAmount": 15.99,
+    "cuisine": "American"
+  },
+  {
+    "restaurant": "Pizza Paradise",
+    "items": ["Pepperoni Pizza", "Wings"],
+    "date": "2024-01-10",
+    "time": "19:00",
+    "totalAmount": 28.99,
+    "cuisine": "Italian"
+  },
+  {
+    "restaurant": "Thai Spice",
+    "items": ["Pad Thai", "Spring Rolls"],
+    "date": "2024-01-08",
+    "time": "20:30",
+    "totalAmount": 22.50,
+    "cuisine": "Thai"
+  },
+  {
+    "restaurant": "Healthy Bowl",
+    "items": ["Buddha Bowl", "Smoothie"],
+    "date": "2024-01-05",
+    "time": "12:30",
+    "totalAmount": 19.99,
+    "cuisine": "Healthy"
+  },
+  {
+    "restaurant": "Curry House",
+    "items": ["Palak Paneer", "Garlic Naan"],
+    "date": "2024-01-03",
+    "time": "19:45",
+    "totalAmount": 16.50,
+    "cuisine": "Indian"
+  },
+  {
+    "restaurant": "Sushi Master",
+    "items": ["Dragon Roll", "Edamame"],
+    "date": "2024-01-01",
+    "time": "14:00",
+    "totalAmount": 24.99,
+    "cuisine": "Japanese"
+  },
+  {
+    "restaurant": "Burger Joint",
+    "items": ["Chicken Sandwich", "Onion Rings"],
+    "date": "2023-12-28",
+    "time": "20:00",
+    "totalAmount": 14.50,
+    "cuisine": "American"
+  }
+]
