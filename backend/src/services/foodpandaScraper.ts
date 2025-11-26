@@ -26,7 +26,7 @@ export class FoodpandaScraper {
 
   async initBrowser(): Promise<void> {
     if (!this.browser) {
-      this.browser = await puppeteer.launch({
+      const launchOptions: any = {
         headless: true,
         args: [
           '--no-sandbox',
@@ -34,7 +34,14 @@ export class FoodpandaScraper {
           '--disable-dev-shm-usage',
           '--disable-gpu',
         ],
-      });
+      };
+
+      // Use Heroku buildpack's Chromium if available
+      if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      }
+
+      this.browser = await puppeteer.launch(launchOptions);
     }
   }
 
