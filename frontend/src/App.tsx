@@ -5,7 +5,6 @@ import {
   getRecommendations,
   parseOrderHistory,
   scrapeFoodpandaOrders,
-  scrapeFoodpandaRestaurants,
 } from './api';
 import {
   OrderHistoryItem,
