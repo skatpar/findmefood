@@ -19,7 +19,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -221,6 +224,21 @@ app.post('/api/parse-history', async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message || 'Failed to parse order history' });
   }
 });
+
+// Serve static frontend files in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../../frontend/dist');
+
+  // Serve static files
+  app.use(express.static(frontendPath));
+
+  // Handle client-side routing - send all non-API requests to index.html
+  app.get('*', (req: Request, res: Response) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
+}
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: any) => {
