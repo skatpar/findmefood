@@ -34,8 +34,16 @@ export class FoodpandaScraper {
           '--disable-dev-shm-usage',
           '--disable-gpu',
           '--disable-software-rasterizer',
+          '--single-process',
+          '--no-zygote',
         ],
       };
+
+      // Debug: Log all Chrome-related environment variables
+      console.log('🔍 Environment variables:');
+      console.log('  PUPPETEER_EXECUTABLE_PATH:', process.env.PUPPETEER_EXECUTABLE_PATH);
+      console.log('  CHROME_BIN:', process.env.CHROME_BIN);
+      console.log('  NODE_ENV:', process.env.NODE_ENV);
 
       // Use Chrome executable from Heroku buildpack
       // The chrome-for-testing buildpack sets CHROME_BIN automatically
@@ -44,12 +52,20 @@ export class FoodpandaScraper {
       } else if (process.env.CHROME_BIN) {
         launchOptions.executablePath = process.env.CHROME_BIN;
       } else {
-        throw new Error('Chrome not found. Ensure heroku-buildpack-chrome-for-testing is installed.');
+        // Log warning but allow to proceed (will use bundled Chrome in development)
+        console.warn('⚠️  Chrome path not set. This may fail on Heroku.');
+        console.warn('⚠️  Make sure heroku-buildpack-chrome-for-testing is installed.');
       }
 
-      console.log('🚀 Launching browser with:', launchOptions.executablePath);
+      console.log('🚀 Launching browser with:', launchOptions.executablePath || 'default');
 
-      this.browser = await puppeteer.launch(launchOptions);
+      try {
+        this.browser = await puppeteer.launch(launchOptions);
+        console.log('✅ Browser launched successfully');
+      } catch (error: any) {
+        console.error('❌ Failed to launch browser:', error.message);
+        throw new Error(`Browser launch failed: ${error.message}. Check Heroku buildpacks are configured.`);
+      }
     }
   }
 
