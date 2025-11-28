@@ -1,4 +1,4 @@
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser, Page } from 'puppeteer-core';
 import * as cheerio from 'cheerio';
 import { OrderHistoryItem } from '../types';
 
@@ -34,20 +34,23 @@ export class FoodpandaScraper {
           '--disable-dev-shm-usage',
           '--disable-gpu',
           '--disable-software-rasterizer',
-          '--disable-dev-shm-usage',
         ],
       };
 
-      // Use Heroku buildpack's Chromium if available
-      // The buildpack sets these environment variables
+      // Use Chrome executable from Heroku buildpack
+      // Priority: PUPPETEER_EXECUTABLE_PATH > GOOGLE_CHROME_BIN > CHROME_BIN
       if (process.env.PUPPETEER_EXECUTABLE_PATH) {
         launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      } else if (process.env.GOOGLE_CHROME_BIN) {
+        launchOptions.executablePath = process.env.GOOGLE_CHROME_BIN;
       } else if (process.env.CHROME_BIN) {
-        // Alternative env var used by some buildpacks
         launchOptions.executablePath = process.env.CHROME_BIN;
+      } else {
+        // Fallback for Heroku Google Chrome buildpack
+        launchOptions.executablePath = '/app/.apt/usr/bin/google-chrome-stable';
       }
 
-      console.log('Launching browser with executable:', launchOptions.executablePath || 'default');
+      console.log('Launching browser with executable:', launchOptions.executablePath);
 
       this.browser = await puppeteer.launch(launchOptions);
     }
