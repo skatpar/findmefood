@@ -87,7 +87,7 @@ export class FoodpandaScraper {
         const orderElements = document.querySelectorAll('[data-testid="order-card"], .order-item, .order-card');
         const extractedOrders: any[] = [];
 
-        orderElements.forEach((orderEl) => {
+        orderElements.forEach((orderEl: Element) => {
           try {
             const restaurantName = orderEl.querySelector('.restaurant-name, [data-testid="restaurant-name"]')?.textContent?.trim() || 'Unknown';
             const dateStr = orderEl.querySelector('.order-date, [data-testid="order-date"]')?.textContent?.trim() || '';
@@ -96,7 +96,7 @@ export class FoodpandaScraper {
             // Extract items
             const itemElements = orderEl.querySelectorAll('.order-item-name, [data-testid="item-name"]');
             const items: string[] = [];
-            itemElements.forEach((item) => {
+            itemElements.forEach((item: Element) => {
               const itemName = item.textContent?.trim();
               if (itemName) items.push(itemName);
             });
@@ -119,15 +119,20 @@ export class FoodpandaScraper {
       });
 
       // Transform to OrderHistoryItem format
-      const orderHistory: OrderHistoryItem[] = orders.map((order, index) => ({
-        restaurantName: order.restaurantName,
-        cuisine: this.inferCuisine(order.restaurantName, order.items),
-        items: order.items.map((item: string) => ({ name: item, price: 0 })),
-        total: order.total,
-        date: this.parseDate(order.date),
-        timeOfDay: this.inferTimeOfDay(order.date),
-        dayOfWeek: this.parseDayOfWeek(order.date),
-      }));
+      const orderHistory: OrderHistoryItem[] = orders.map((order) => {
+        const parsedDate = this.parseDate(order.date);
+        const date = new Date(parsedDate);
+
+        return {
+          restaurant: order.restaurantName,
+          cuisine: this.inferCuisine(order.restaurantName, order.items),
+          items: order.items,
+          total: order.total,
+          totalAmount: order.total,
+          date: date.toISOString().split('T')[0], // YYYY-MM-DD format
+          time: this.inferTimeOfDay(parsedDate),
+        };
+      });
 
       return orderHistory;
     } catch (error: any) {
@@ -170,7 +175,7 @@ export class FoodpandaScraper {
         const restaurantElements = document.querySelectorAll('[data-testid="restaurant-card"], .restaurant-card, .vendor-tile');
         const extractedRestaurants: any[] = [];
 
-        restaurantElements.forEach((restaurantEl) => {
+        restaurantElements.forEach((restaurantEl: Element) => {
           try {
             const name = restaurantEl.querySelector('.restaurant-name, [data-testid="restaurant-name"], h3, h4')?.textContent?.trim() || 'Unknown';
             const urlLink = restaurantEl.querySelector('a')?.getAttribute('href') || '';
@@ -181,7 +186,7 @@ export class FoodpandaScraper {
             const deliveryFee = restaurantEl.querySelector('.delivery-fee, [data-testid="delivery-fee"]')?.textContent?.trim() || '';
             const image = restaurantEl.querySelector('img')?.getAttribute('src') || '';
 
-            const cuisine = cuisineStr.split(',').map(c => c.trim()).filter(c => c);
+            const cuisine = cuisineStr.split(',').map((c: string) => c.trim()).filter((c: string) => c);
             const rating = parseFloat(ratingStr) || undefined;
 
             extractedRestaurants.push({
@@ -238,7 +243,7 @@ export class FoodpandaScraper {
         const itemElements = document.querySelectorAll('[data-testid="menu-item"], .menu-item, .dish-card');
         const extractedItems: any[] = [];
 
-        itemElements.forEach((itemEl) => {
+        itemElements.forEach((itemEl: Element) => {
           try {
             const name = itemEl.querySelector('.item-name, [data-testid="item-name"], h3, h4')?.textContent?.trim() || 'Unknown';
             const description = itemEl.querySelector('.item-description, [data-testid="item-description"], p')?.textContent?.trim() || '';
