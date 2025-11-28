@@ -38,19 +38,16 @@ export class FoodpandaScraper {
       };
 
       // Use Chrome executable from Heroku buildpack
-      // Priority: PUPPETEER_EXECUTABLE_PATH > GOOGLE_CHROME_BIN > CHROME_BIN
+      // The chrome-for-testing buildpack sets CHROME_BIN automatically
       if (process.env.PUPPETEER_EXECUTABLE_PATH) {
         launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-      } else if (process.env.GOOGLE_CHROME_BIN) {
-        launchOptions.executablePath = process.env.GOOGLE_CHROME_BIN;
       } else if (process.env.CHROME_BIN) {
         launchOptions.executablePath = process.env.CHROME_BIN;
       } else {
-        // Fallback for Heroku Google Chrome buildpack
-        launchOptions.executablePath = '/app/.apt/usr/bin/google-chrome-stable';
+        throw new Error('Chrome not found. Ensure heroku-buildpack-chrome-for-testing is installed.');
       }
 
-      console.log('Launching browser with executable:', launchOptions.executablePath);
+      console.log('🚀 Launching browser with:', launchOptions.executablePath);
 
       this.browser = await puppeteer.launch(launchOptions);
     }
