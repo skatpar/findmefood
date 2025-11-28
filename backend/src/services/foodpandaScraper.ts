@@ -33,13 +33,21 @@ export class FoodpandaScraper {
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
           '--disable-gpu',
+          '--disable-software-rasterizer',
+          '--disable-dev-shm-usage',
         ],
       };
 
       // Use Heroku buildpack's Chromium if available
+      // The buildpack sets these environment variables
       if (process.env.PUPPETEER_EXECUTABLE_PATH) {
         launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      } else if (process.env.CHROME_BIN) {
+        // Alternative env var used by some buildpacks
+        launchOptions.executablePath = process.env.CHROME_BIN;
       }
+
+      console.log('Launching browser with executable:', launchOptions.executablePath || 'default');
 
       this.browser = await puppeteer.launch(launchOptions);
     }
